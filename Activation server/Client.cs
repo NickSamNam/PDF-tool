@@ -1,5 +1,12 @@
-﻿using System.Net.Security;
+﻿using System;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace Activation_server {
     public class Client {
@@ -13,22 +20,68 @@ namespace Activation_server {
         public Client(TcpClient client) {
             _client = client;
             _stream = new SslStream(_client.GetStream());
+            try {
+                _stream.AuthenticateAsServer(GetCertificate(), false, SslProtocols.Tls12, false);
+            }
+            catch (AuthenticationException) {
+                Close();
+            }
+        }
+
+        public void Accept() {
+            while (_client.Connected) {
+                var sizeBuffer = new byte[4];
+                _stream.Read(sizeBuffer, 0, sizeBuffer.Length);
+                var messageLength = BitConverter.ToInt32(sizeBuffer, 0);
+                var messageBuffer = new byte[messageLength];
+                var read = 0;
+                do {
+                    read += _stream.Read(messageBuffer, 0, messageBuffer.Length);
+                } while (read < messageLength);
+                var request = JObject.Parse(Encoding.ASCII.GetString(messageBuffer));
+                switch (request["id"].ToObject<string>()) {
+                    case "activation": {
+                        var productKey = request["productKey"].ToObject<string>();
+                        var hwid = request["hwid"].ToObject<string>();
+                        var response = new JObject();
+                        var activationResponse = DatabaseHandler.ActivateProduct(productKey, hwid);
+                        response.Add("activationResponse", (int) activationResponse);
+                        if (activationResponse == ActivationResponse.Succesful) {
+                            var signedKey = Activator.GenerateSignedKey(productKey, hwid);
+                            response.Add("signedKey", signedKey);
+                        }
+                        Send(Encoding.ASCII.GetBytes(response.ToString()));
+                    }
+                        break;
+                }
+            }
+        }
+
+        public void Close() {
+            _client.Close();
+            _stream.Close();
         }
 
         /// <summary>
-        /// Send the activation response to the client.
+        /// Send the byte[] to the client.
         /// </summary>
-        /// <param name="response">Response of the activation.</param>
-        private void SendActivationResponse(ActivationResponse response) {
-//            TODO fill body
+        /// <param name="data">Data to be sent.</param>
+        private void Send(byte[] data) {
+            new Thread(() => {
+                var prefix = BitConverter.GetBytes(data.Length);
+                var buffer = new byte[prefix.Length + data.Length];
+                Buffer.BlockCopy(prefix, 0, buffer, 0, prefix.Length);
+                Buffer.BlockCopy(data, 0, buffer, prefix.Length, data.Length);
+                _stream.Write(buffer, 0, buffer.Length);
+            }).Start();
         }
 
-        /// <summary>
-        /// Send the signed key to the client.
-        /// </summary>
-        /// <param name="signedKey">The signed activation key.</param>
-        private void SendSignedKey(string signedKey) {
-//            TODO fill body
+        private X509Certificate2 GetCertificate() {
+            var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+            store.Open(OpenFlags.ReadOnly);
+            var cert = store.Certificates.Find(X509FindType.FindByThumbprint,
+                "‎9D829EC37B64AE4E7D9858B66438B37711FFBCE2", true)[0];
+            return cert;
         }
     }
 }
