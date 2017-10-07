@@ -14,7 +14,9 @@ namespace PDF_tool {
         /// <param name="pdf">The input pdf.</param>
         /// <param name="pages">The pages to take from the input pdf.</param>
         public void AddPagesToDoc(PdfDocument pdf, int[] pages) {
-//            TODO create body
+            foreach (var page in pages) {
+                _output.AddPage(pdf.Pages[page]);
+            }
         }
 
         /// <summary>

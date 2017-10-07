@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using PDF_tool.Properties;
 using PDF_tool.Security;
 
@@ -15,17 +18,19 @@ namespace PDF_tool {
         public async Task<ActivationResponse> ActivateAsync(string productKey) {
             var hwid = FingerPrint.Value();
 
-//            TODO replace dummy code with server communication
-            var response = ActivationResponse.Succesful;
-            var signedKey = "";
-//            ENDTODO
+            var server = new ActivationServerConnection();
+            var request = $@"{{""id"":""activation"",""productKey"":""{productKey}"",""hwid"":""{hwid}""";
+            var response =
+                JObject.Parse(
+                    Encoding.ASCII.GetString(await server.SendRequestAsync(Encoding.ASCII.GetBytes(request))));
+            var activationResponse = (ActivationResponse) response["activationResponse"].ToObject<int>();
 
-            if (response == ActivationResponse.Succesful) {
+            if (activationResponse == ActivationResponse.Succesful) {
                 Settings.Default.ProductKey = productKey;
-                Settings.Default.SignedKey = signedKey;
+                Settings.Default.SignedKey = response["signedKey"].ToString();
             }
 
-            return response;
+            return activationResponse;
         }
 
         /// <summary>
@@ -45,27 +50,29 @@ namespace PDF_tool {
         /// </summary>
         /// <returns>the crypto service providor of the product activation public certificate.</returns>
         private RSACryptoServiceProvider GetCsp() {
-//            TODO replace dummy code
-            return new RSACryptoServiceProvider();
+            return (RSACryptoServiceProvider) new X509Certificate2(Resources.PDF_Tool_Activation_Client, string.Empty)
+                .PublicKey.Key;
         }
+    }
+
+    /// <summary>
+    /// Possible activation responses from the activation server.
+    /// </summary>
+    public enum ActivationResponse {
+        /// <summary>
+        /// The product was activated successfully by the server.
+        /// </summary>
+        Succesful,
 
         /// <summary>
-        /// Possible activation responses from the activation server.
+        /// The product could not be activated by the server, because the product key is invalid.
         /// </summary>
-        public enum ActivationResponse {
-            /// <summary>
-            /// The product was activated successfully by the server.
-            /// </summary>
-            Succesful,
-            /// <summary>
-            /// The product could not be activated by the server, because the product key is invalid.
-            /// </summary>
-            InvalidProductKey,
-            /// <summary>
-            /// The product could not be activated by the server, because the product has been activated with another device.
-            /// </summary>
-            ProductKeyTaken
-        }
+        InvalidProductKey,
+
+        /// <summary>
+        /// The product could not be activated by the server, because the product has been activated with another device.
+        /// </summary>
+        ProductKeyTaken
     }
 
     #region https://www.codeproject.com/Articles/28678/Generating-Unique-Key-Finger-Print-for-a-Computer
