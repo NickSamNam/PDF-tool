@@ -1,5 +1,4 @@
-﻿using System;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 
 namespace Activation_server {
     public class DatabaseHandler {
@@ -111,6 +110,22 @@ namespace Activation_server {
                 }
             }
             return ActivationResponse.Succesful;
+        }
+
+        /// <summary>
+        /// Check if the database is running.
+        /// </summary>
+        /// <returns>Returns true if the database is running.</returns>
+        public static bool IsOnline() {
+            try {
+                using (var conn = new DatabaseHandler()._sqlConn) {
+                    conn.Open();
+                }
+            }
+            catch (MySqlException e) {
+                if (e.Number == 1042) return false;
+            }
+            return true;
         }
     }
 }
