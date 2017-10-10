@@ -13,6 +13,7 @@ namespace Activation_server {
     public class Client {
         private readonly TcpClient _client;
         private readonly SslStream _stream;
+        private readonly DatabaseHandler _databaseHandler = new DatabaseHandler();
 
         /// <summary>
         /// Create a new activation client.
@@ -48,7 +49,7 @@ namespace Activation_server {
                             var productKey = request["productKey"].ToObject<string>();
                             var hwid = request["hwid"].ToObject<string>();
                             var response = new JObject();
-                            var activationResponse = DatabaseHandler.ActivateProduct(productKey, hwid);
+                            var activationResponse = _databaseHandler.ActivateProduct(productKey, hwid);
                             response.Add("activationResponse", (int) activationResponse);
                             if (activationResponse == ActivationResponse.Succesful) {
                                 var signedKey = Activator.GenerateSignedKey(productKey, hwid);
