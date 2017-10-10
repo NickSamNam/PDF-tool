@@ -69,6 +69,8 @@ namespace Activation_server {
                     switch (e.Number) {
                         case 1644:
                             return ActivationResponse.ProductKeyTaken;
+                        default:
+                            return ActivationResponse.Unsuccessful;
                     }
                 }
             }
@@ -106,6 +108,8 @@ namespace Activation_server {
                     switch (e.Number) {
                         case 1644:
                             return ActivationResponse.ProductKeyTaken;
+                        default:
+                            return ActivationResponse.Unsuccessful;
                     }
                 }
             }

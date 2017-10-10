@@ -14,6 +14,10 @@
         /// <summary>
         /// The product could not be activated, because the product has been activated with another device.
         /// </summary>
-        ProductKeyTaken
+        ProductKeyTaken,
+        /// <summary>
+        /// The product could not be activated, because an error occured.
+        /// </summary>
+        Unsuccessful
     }
 }

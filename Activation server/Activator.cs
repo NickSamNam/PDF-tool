@@ -34,7 +34,7 @@ namespace Activation_server {
         /// <returns>Returns the signed activation key.</returns>
         public static string GenerateSignedKey(string productKey, string hwid) {
             var unsignedKey = productKey + " " + hwid;
-            var signedKey = GetCsp().SignData(Encoding.ASCII.GetBytes(unsignedKey), HashAlgorithmName.SHA512);
+            var signedKey = GetCsp().SignData(Encoding.ASCII.GetBytes(unsignedKey), new SHA1CryptoServiceProvider());
             return Convert.ToBase64String(signedKey);
         }
 
@@ -46,7 +46,7 @@ namespace Activation_server {
             var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
             store.Open(OpenFlags.ReadOnly);
             var cert = store.Certificates.Find(X509FindType.FindByThumbprint,
-                "‎‎DC39F68D203AD6FEB0410FA1C24C1984F87EB259", true)[0];
+                "DC39F68D203AD6FEB0410FA1C24C1984F87EB259", true)[0];
             return (RSACryptoServiceProvider) cert.PrivateKey;
         }
     }

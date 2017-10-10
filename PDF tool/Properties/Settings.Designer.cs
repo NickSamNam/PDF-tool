@@ -30,7 +30,7 @@ namespace PDF_tool.Properties {
             get {
                 return ((string)(this["SignedKey"]));
             }
-            set { throw new System.NotImplementedException(); }
+            set { this["SignedKey"] = value; }
         }
 
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
@@ -40,7 +40,7 @@ namespace PDF_tool.Properties {
             get {
                 return ((string)(this["ProductKey"]));
             }
-            set { throw new System.NotImplementedException(); }
+            set { this["ProductKey"] = value; }
         }
     }
 }

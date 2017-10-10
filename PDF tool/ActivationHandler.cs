@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -19,7 +18,7 @@ namespace PDF_tool {
             var hwid = FingerPrint.Value();
 
             var server = new ActivationServerConnection();
-            var request = $@"{{""id"":""activation"",""productKey"":""{productKey}"",""hwid"":""{hwid}""";
+            var request = $@"{{""id"":""activation"",""productKey"":""{productKey}"",""hwid"":""{hwid}""}}";
             var response =
                 JObject.Parse(
                     await server.SendRequestAsync(request));
@@ -41,8 +40,8 @@ namespace PDF_tool {
             var unsignedKey = Encoding.ASCII.GetBytes(Settings.Default.ProductKey + " " + FingerPrint.Value());
             var signedKey = Convert.FromBase64String(Settings.Default.SignedKey);
             return GetCsp()
-                .VerifyHash(SHA512.Create().ComputeHash(unsignedKey),
-                    CryptoConfig.MapNameToOID("SHA512"), signedKey);
+                .VerifyHash(SHA1.Create().ComputeHash(unsignedKey),
+                    CryptoConfig.MapNameToOID("SHA1"), signedKey);
         }
 
         /// <summary>
@@ -72,7 +71,11 @@ namespace PDF_tool {
         /// <summary>
         /// The product could not be activated by the server, because the product has been activated with another device.
         /// </summary>
-        ProductKeyTaken
+        ProductKeyTaken,
+        /// <summary>
+        /// The product could not be activated by the server, because an error occured.
+        /// </summary>
+        Unsuccessful
     }
 
     #region https://www.codeproject.com/Articles/28678/Generating-Unique-Key-Finger-Print-for-a-Computer

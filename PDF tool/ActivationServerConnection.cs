@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PDF_tool {
     public class ActivationServerConnection {
-        private const string Host = "server.aftersoft.nl";
+        private const string Host = "localhost";
         private const int Port = 420;
         private readonly TcpClient _client;
         private readonly SslStream _stream;

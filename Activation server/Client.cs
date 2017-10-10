@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
@@ -26,6 +28,17 @@ namespace Activation_server {
             }
             catch (AuthenticationException) {
                 Close();
+            }
+            catch (IOException) {
+                Close();
+            }
+            catch (Win32Exception e) {
+                if (e.NativeErrorCode == -2146893043) {
+                    Console.WriteLine("Run server as admin.");
+                }
+                else {
+                    throw;
+                }
             }
         }
 
@@ -62,6 +75,9 @@ namespace Activation_server {
                 catch (JsonReaderException) {
                     return;
                 }
+                catch (IOException) {
+                    return;
+                }
             }
         }
 
@@ -88,7 +104,8 @@ namespace Activation_server {
             var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
             store.Open(OpenFlags.ReadOnly);
             var cert = store.Certificates.Find(X509FindType.FindByThumbprint,
-                "‎9D829EC37B64AE4E7D9858B66438B37711FFBCE2", true)[0];
+                "9D829EC37B64AE4E7D9858B66438B37711FFBCE2", true)[0];
+            store.Close();
             return cert;
         }
     }
