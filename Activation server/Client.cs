@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Activation_server {
@@ -34,25 +35,32 @@ namespace Activation_server {
                 _stream.Read(sizeBuffer, 0, sizeBuffer.Length);
                 var messageLength = BitConverter.ToInt32(sizeBuffer, 0);
                 var messageBuffer = new byte[messageLength];
+                var messageBuilder = new StringBuilder();
                 var read = 0;
                 do {
-                    read += _stream.Read(messageBuffer, 0, messageBuffer.Length);
+                    read += _stream.Read(messageBuffer, 0, messageLength - read);
+                    messageBuilder.Append(Encoding.ASCII.GetString(messageBuffer));
                 } while (read < messageLength);
-                var request = JObject.Parse(Encoding.ASCII.GetString(messageBuffer));
-                switch (request["id"].ToObject<string>()) {
-                    case "activation": {
-                        var productKey = request["productKey"].ToObject<string>();
-                        var hwid = request["hwid"].ToObject<string>();
-                        var response = new JObject();
-                        var activationResponse = DatabaseHandler.ActivateProduct(productKey, hwid);
-                        response.Add("activationResponse", (int) activationResponse);
-                        if (activationResponse == ActivationResponse.Succesful) {
-                            var signedKey = Activator.GenerateSignedKey(productKey, hwid);
-                            response.Add("signedKey", signedKey);
+                try {
+                    var request = JObject.Parse(messageBuilder.ToString());
+                    switch (request["id"].ToObject<string>()) {
+                        case "activation": {
+                            var productKey = request["productKey"].ToObject<string>();
+                            var hwid = request["hwid"].ToObject<string>();
+                            var response = new JObject();
+                            var activationResponse = DatabaseHandler.ActivateProduct(productKey, hwid);
+                            response.Add("activationResponse", (int) activationResponse);
+                            if (activationResponse == ActivationResponse.Succesful) {
+                                var signedKey = Activator.GenerateSignedKey(productKey, hwid);
+                                response.Add("signedKey", signedKey);
+                            }
+                            Send(Encoding.ASCII.GetBytes(response.ToString()));
                         }
-                        Send(Encoding.ASCII.GetBytes(response.ToString()));
+                            break;
                     }
-                        break;
+                }
+                catch (JsonReaderException) {
+                    return;
                 }
             }
         }

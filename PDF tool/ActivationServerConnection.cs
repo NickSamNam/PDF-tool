@@ -34,22 +34,25 @@ namespace PDF_tool {
         /// </summary>
         /// <param name="request">The request to send.</param>
         /// <returns>Returns the response data.</returns>
-        public async Task<byte[]> SendRequestAsync(byte[] request) {
+        public async Task<string> SendRequestAsync(string request) {
             var prefix = BitConverter.GetBytes(request.Length);
             var buffer = new byte[prefix.Length + request.Length];
             Buffer.BlockCopy(prefix, 0, buffer, 0, prefix.Length);
-            Buffer.BlockCopy(request, 0, buffer, prefix.Length, request.Length);
+            Buffer.BlockCopy(Encoding.ASCII.GetBytes(request), 0, buffer, prefix.Length, request.Length);
             await _stream.WriteAsync(buffer, 0, buffer.Length);
 
             var sizeBuffer = new byte[4];
             await _stream.ReadAsync(sizeBuffer, 0, sizeBuffer.Length);
             var messageLength = BitConverter.ToInt32(sizeBuffer, 0);
             var messageBuffer = new byte[messageLength];
+            var messageBuilder = new StringBuilder();
+
             var read = 0;
             do {
-                read += await _stream.ReadAsync(messageBuffer, 0, messageBuffer.Length);
+                read += await _stream.ReadAsync(messageBuffer, 0, messageBuffer.Length - read);
+                messageBuilder.Append(Encoding.ASCII.GetString(messageBuffer));
             } while (read < messageLength);
-            return messageBuffer;
+            return messageBuilder.ToString();
         }
 
         /// <summary>

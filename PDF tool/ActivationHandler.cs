@@ -22,7 +22,7 @@ namespace PDF_tool {
             var request = $@"{{""id"":""activation"",""productKey"":""{productKey}"",""hwid"":""{hwid}""";
             var response =
                 JObject.Parse(
-                    Encoding.ASCII.GetString(await server.SendRequestAsync(Encoding.ASCII.GetBytes(request))));
+                    await server.SendRequestAsync(request));
             var activationResponse = (ActivationResponse) response["activationResponse"].ToObject<int>();
 
             if (activationResponse == ActivationResponse.Succesful) {
