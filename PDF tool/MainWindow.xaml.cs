@@ -22,11 +22,35 @@ namespace PDF_tool {
         public MainWindow() {
             InitializeComponent();
             Loaded += WindowLoaded;
+            toolbar.Loaded += ToolbarLoaded;
+        }
+
+        private void ToolbarLoaded(object sender, RoutedEventArgs e) {
+            var toolBar = sender as ToolBar;
+            if (toolBar?.Template.FindName("OverflowGrid", toolBar) is FrameworkElement overflowGrid)
+                overflowGrid.Visibility = Visibility.Collapsed;
+
+            if (toolBar?.Template.FindName("MainPanelBorder", toolBar) is FrameworkElement mainPanelBorder)
+                mainPanelBorder.Margin = new Thickness(0);
         }
 
         private async void WindowLoaded(object sender, RoutedEventArgs e) {
-            Debug.WriteLine(await new ActivationHandler().ActivateAsync("26O87V3SW5V8QC57OCW4ASWV3"));
-            Debug.WriteLine("Activated: " + new ActivationHandler().Validate());
+            while (!await HandleActivation()) {
+                if (MessageBox.Show(this, "In order to use this product you need to activate it.",
+                        "Product activation.", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    Environment.Exit(0);
+            }
+        }
+
+        /// <summary>
+        /// Check activation and show activation screen if needed.
+        /// </summary>
+        /// <returns>Returns true if the product is activated.</returns>
+        private async Task<bool> HandleActivation() {
+            if (await ActivationHandler.ValidateAsync()) return true;
+            if (new ActivationWindow().ShowDialog() ?? false)
+                return await ActivationHandler.ValidateAsync();
+            return false;
         }
     }
 }

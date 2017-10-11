@@ -1,0 +1,24 @@
+﻿<Window x:Class="PDF_tool.ActivationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PDF_tool"
+        mc:Ignorable="d"
+        Title="ActivationWindow" Height="300" Width="358.989" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Label Content="Product key:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="tb_productKey_0" HorizontalAlignment="Left" Height="25" Margin="15,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" CharacterCasing="Upper" MaxLines="1"/>
+        <TextBox x:Name="tb_productKey_1" HorizontalAlignment="Left" Height="25" Margin="80,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" CharacterCasing="Upper" MaxLines="1"/>
+        <TextBox x:Name="tb_productKey_2" HorizontalAlignment="Left" Height="25" Margin="145,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" CharacterCasing="Upper" MaxLines="1"/>
+        <TextBox x:Name="tb_productKey_3" HorizontalAlignment="Left" Height="25" Margin="210,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" CharacterCasing="Upper" MaxLines="1"/>
+        <TextBox x:Name="tb_productKey_4" HorizontalAlignment="Left" Height="25" Margin="275,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" CharacterCasing="Upper" MaxLines="1"/>
+        <Label Content="-" HorizontalAlignment="Left" Margin="65,33,0,0" VerticalAlignment="Top" Height="25" Width="15"/>
+        <Label Content="-" HorizontalAlignment="Left" Margin="130,33,0,0" VerticalAlignment="Top" Height="25" Width="15"/>
+        <Label Content="-" HorizontalAlignment="Left" Margin="195,33,0,0" VerticalAlignment="Top" Height="25" Width="15"/>
+        <Label Content="-" HorizontalAlignment="Left" Margin="260,33,0,0" VerticalAlignment="Top" Height="25" Width="15"/>
+        <Button x:Name="btn_ok" Content="OK" HorizontalAlignment="Left" Margin="268,241,0,0" VerticalAlignment="Top" Width="75" Click="btn_ok_Click"/>
+        <Button x:Name="btn_cancel" Content="Cancel" HorizontalAlignment="Left" Margin="10,241,0,0" VerticalAlignment="Top" Width="75" Click="btn_cancel_Click"/>
+
+    </Grid>
+</Window>

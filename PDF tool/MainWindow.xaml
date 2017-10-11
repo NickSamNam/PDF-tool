@@ -5,8 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PDF_tool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+        Title="MainWindow" Height="350" Width="525" WindowStartupLocation="Manual">
+    <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top"
+                     IsLocked="True">
+            <ToolBar x:Name="toolbar"
+                OverflowMode="Never">
+                <Button Command="Open" Content="Load" />
+                <Button Command="Save" Content="Save" />
+            </ToolBar>
+        </ToolBarTray>
+        <TextBox AcceptsReturn="True" />
+    </DockPanel>
 </Window>

@@ -8,13 +8,13 @@ using PDF_tool.Properties;
 using PDF_tool.Security;
 
 namespace PDF_tool {
-    public class ActivationHandler {
+    public static class ActivationHandler {
         /// <summary>
         /// Activate the software with the server asynchronously
         /// </summary>
         /// <param name="productKey">The product key to use for activation.</param>
         /// <returns>Returns the activation response sent by the server.</returns>
-        public async Task<ActivationResponse> ActivateAsync(string productKey) {
+        public static async Task<ActivationResponse> ActivateAsync(string productKey) {
             var hwid = FingerPrint.Value();
 
             var server = new ActivationServerConnection();
@@ -36,8 +36,8 @@ namespace PDF_tool {
         /// Validate if the product has been activated.
         /// </summary>
         /// <returns>Returns true if the product has been activated activated.</returns>
-        public bool Validate() {
-            var unsignedKey = Encoding.ASCII.GetBytes(Settings.Default.ProductKey + " " + FingerPrint.Value());
+        public static async Task<bool> ValidateAsync() {
+            var unsignedKey = Encoding.ASCII.GetBytes(Settings.Default.ProductKey + " " + await Task.Run(() => FingerPrint.Value()));
             var signedKey = Convert.FromBase64String(Settings.Default.SignedKey);
             return GetCsp()
                 .VerifyHash(SHA1.Create().ComputeHash(unsignedKey),
@@ -48,7 +48,7 @@ namespace PDF_tool {
         /// Get the crypto service provider of the product activation public certificate.
         /// </summary>
         /// <returns>the crypto service providor of the product activation public certificate.</returns>
-        private RSACryptoServiceProvider GetCsp() {
+        private static RSACryptoServiceProvider GetCsp() {
             return (RSACryptoServiceProvider) new X509Certificate2(Resources.PDF_Tool_Activation_Client, string.Empty)
                 .PublicKey.Key;
         }
