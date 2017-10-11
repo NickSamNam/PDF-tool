@@ -35,26 +35,26 @@ namespace Activation_server {
             catch (Win32Exception e) {
                 if (e.NativeErrorCode == -2146893043) {
                     Console.WriteLine("Run server as admin.");
+                    Environment.Exit(1);
                 }
-                else {
+                else
                     throw;
-                }
             }
         }
 
         public void Accept() {
             while (_client.Connected) {
-                var sizeBuffer = new byte[4];
-                _stream.Read(sizeBuffer, 0, sizeBuffer.Length);
-                var messageLength = BitConverter.ToInt32(sizeBuffer, 0);
-                var messageBuffer = new byte[messageLength];
-                var messageBuilder = new StringBuilder();
-                var read = 0;
-                do {
-                    read += _stream.Read(messageBuffer, 0, messageLength - read);
-                    messageBuilder.Append(Encoding.ASCII.GetString(messageBuffer));
-                } while (read < messageLength);
                 try {
+                    var sizeBuffer = new byte[4];
+                    _stream.Read(sizeBuffer, 0, sizeBuffer.Length);
+                    var messageLength = BitConverter.ToInt32(sizeBuffer, 0);
+                    var messageBuffer = new byte[messageLength];
+                    var messageBuilder = new StringBuilder();
+                    var read = 0;
+                    do {
+                        read += _stream.Read(messageBuffer, 0, messageLength - read);
+                        messageBuilder.Append(Encoding.ASCII.GetString(messageBuffer));
+                    } while (read < messageLength);
                     var request = JObject.Parse(messageBuilder.ToString());
                     switch (request["id"].ToObject<string>()) {
                         case "activation": {
@@ -77,6 +77,14 @@ namespace Activation_server {
                 }
                 catch (IOException) {
                     return;
+                }
+                catch (Win32Exception e) {
+                    if (e.NativeErrorCode == -2147467259) {
+                        Console.WriteLine("Run server as admin.");
+                        Environment.Exit(1);
+                    }
+                    else
+                        throw;
                 }
             }
         }
@@ -103,8 +111,10 @@ namespace Activation_server {
         private X509Certificate2 GetCertificate() {
             var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
             store.Open(OpenFlags.ReadOnly);
+
             var cert = store.Certificates.Find(X509FindType.FindByThumbprint,
                 "9D829EC37B64AE4E7D9858B66438B37711FFBCE2", true)[0];
+
             store.Close();
             return cert;
         }
