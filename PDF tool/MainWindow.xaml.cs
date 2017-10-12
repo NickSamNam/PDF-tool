@@ -38,13 +38,11 @@ namespace PDF_tool {
         }
 
         private async void WindowLoaded(object sender, RoutedEventArgs e) {
-#if !DEBUG
             while (!await HandleActivation()) {
                 if (MessageBox.Show(this, "In order to use this product you need to activate it.",
                         "Product activation.", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
                     Environment.Exit(0);
             }
-#endif
         }
 
         /// <summary>
