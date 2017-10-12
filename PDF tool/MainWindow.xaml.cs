@@ -81,6 +81,10 @@ namespace PDF_tool {
         }
 
         private async void Button_Click_1(object sender, RoutedEventArgs e) {
+            _pdfHandler.Input.ForEach(it => {
+                var pages = Enumerable.Range(0, it.PageCount - 1);
+                _pdfHandler.AddPagesToDoc(it, pages.ToArray());
+            });
             var sd = new SaveFileDialog {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 AddExtension = true,
@@ -90,7 +94,9 @@ namespace PDF_tool {
                 Title = "Save PDF Document"
             };
             if (sd.ShowDialog(Owner) ?? false) {
-                await _pdfHandler.SaveAsync(sd.FileName);
+                if (!await _pdfHandler.SaveAsync(sd.FileName)) {
+                    MessageBox.Show("Document could not be saved.");
+                }
             }
         }
     }
