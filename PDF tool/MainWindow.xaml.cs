@@ -13,16 +13,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32;
+using Path = System.IO.Path;
 
 namespace PDF_tool {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        private PdfHandler _pdfHandler = new PdfHandler();
+
         public MainWindow() {
             InitializeComponent();
             Loaded += WindowLoaded;
-            toolbar.Loaded += ToolbarLoaded;
         }
 
         private void ToolbarLoaded(object sender, RoutedEventArgs e) {
@@ -35,11 +38,13 @@ namespace PDF_tool {
         }
 
         private async void WindowLoaded(object sender, RoutedEventArgs e) {
+#if !DEBUG
             while (!await HandleActivation()) {
                 if (MessageBox.Show(this, "In order to use this product you need to activate it.",
                         "Product activation.", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
                     Environment.Exit(0);
             }
+#endif
         }
 
         /// <summary>
@@ -51,6 +56,42 @@ namespace PDF_tool {
             if (new ActivationWindow().ShowDialog() ?? false)
                 return await ActivationHandler.ValidateAsync();
             return false;
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e) {
+            var od = new OpenFileDialog() {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                AddExtension = true,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = "pdf",
+                Multiselect = true,
+                Filter = "PDF Documents (*.pdf)|*.pdf|All files (*.*)|*.*",
+                ShowReadOnly = true,
+                Title = "Open PDF Document(s)"
+            };
+            if (od.ShowDialog(this) ?? false) {
+                await _pdfHandler.LoadAsync(od.FileNames);
+            }
+            var items = new List<ListBoxItem>();
+            _pdfHandler.Input.ForEach(it => {
+                items.Add(new ListBoxItem {Title = Path.GetFileName(it.FullPath), Path = it.FullPath});
+            });
+            LbPdfs.ItemsSource = items;
+        }
+
+        private async void Button_Click_1(object sender, RoutedEventArgs e) {
+            var sd = new SaveFileDialog {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                AddExtension = true,
+                CheckPathExists = true,
+                DefaultExt = "pdf",
+                Filter = "PDF Documents (*.pdf)|*.pdf|All files (*.*)|*.*",
+                Title = "Save PDF Document"
+            };
+            if (sd.ShowDialog(Owner) ?? false) {
+                await _pdfHandler.SaveAsync(sd.FileName);
+            }
         }
     }
 }

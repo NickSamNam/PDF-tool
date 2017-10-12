@@ -6,15 +6,26 @@
         xmlns:local="clr-namespace:PDF_tool"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525" WindowStartupLocation="Manual">
-    <DockPanel>
-        <ToolBarTray DockPanel.Dock="Top"
-                     IsLocked="True">
-            <ToolBar x:Name="toolbar"
-                OverflowMode="Never">
-                <Button Command="Open" Content="Load" />
-                <Button Command="Save" Content="Save" />
-            </ToolBar>
-        </ToolBarTray>
-        <TextBox AcceptsReturn="True" />
-    </DockPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="99*"/>
+            <RowDefinition Height="8*"/>
+        </Grid.RowDefinitions>
+        <TextBox AcceptsReturn="True" Margin="0,0,-0.6,-0.2" Grid.RowSpan="2" />
+        <Button Content="Add Document" Margin="10,0,423.4,14.8" Click="Button_Click" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+        <ListBox x:Name="LbPdfs" Margin="10,10,10,28.8" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="local:ListBoxItem">
+                    <Grid Margin="0.2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="100"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding Title}"></Label>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="433,287,0,0" VerticalAlignment="Top" Width="75" Grid.RowSpan="2" Click="Button_Click_1"/>
+    </Grid>
 </Window>

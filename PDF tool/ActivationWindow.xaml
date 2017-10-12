@@ -17,8 +17,8 @@
         <Label Content="-" HorizontalAlignment="Left" Margin="130,33,0,0" VerticalAlignment="Top" Height="25" Width="15"/>
         <Label Content="-" HorizontalAlignment="Left" Margin="195,33,0,0" VerticalAlignment="Top" Height="25" Width="15"/>
         <Label Content="-" HorizontalAlignment="Left" Margin="260,33,0,0" VerticalAlignment="Top" Height="25" Width="15"/>
-        <Button x:Name="btn_ok" Content="OK" HorizontalAlignment="Left" Margin="268,241,0,0" VerticalAlignment="Top" Width="75" Click="btn_ok_Click"/>
-        <Button x:Name="btn_cancel" Content="Cancel" HorizontalAlignment="Left" Margin="10,241,0,0" VerticalAlignment="Top" Width="75" Click="btn_cancel_Click"/>
+        <Button x:Name="BtnOk" Content="OK" HorizontalAlignment="Left" Margin="268,241,0,0" VerticalAlignment="Top" Width="75" Click="btn_ok_Click"/>
+        <Button x:Name="BtnCancel" Content="Cancel" HorizontalAlignment="Left" Margin="10,241,0,0" Width="75" Click="btn_cancel_Click" Height="19" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

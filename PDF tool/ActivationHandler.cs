@@ -27,6 +27,7 @@ namespace PDF_tool {
             if (activationResponse == ActivationResponse.Succesful) {
                 Settings.Default.ProductKey = productKey;
                 Settings.Default.SignedKey = response["signedKey"].ToString();
+                Settings.Default.Save();
             }
 
             return activationResponse;
@@ -37,7 +38,8 @@ namespace PDF_tool {
         /// </summary>
         /// <returns>Returns true if the product has been activated activated.</returns>
         public static async Task<bool> ValidateAsync() {
-            var unsignedKey = Encoding.ASCII.GetBytes(Settings.Default.ProductKey + " " + await Task.Run(() => FingerPrint.Value()));
+            var unsignedKey =
+                Encoding.ASCII.GetBytes(Settings.Default.ProductKey + " " + await Task.Run(() => FingerPrint.Value()));
             var signedKey = Convert.FromBase64String(Settings.Default.SignedKey);
             return GetCsp()
                 .VerifyHash(SHA1.Create().ComputeHash(unsignedKey),
@@ -72,6 +74,7 @@ namespace PDF_tool {
         /// The product could not be activated by the server, because the product has been activated with another device.
         /// </summary>
         ProductKeyTaken,
+
         /// <summary>
         /// The product could not be activated by the server, because an error occured.
         /// </summary>
@@ -91,10 +94,7 @@ namespace PDF_tool {
             public static string Value() {
                 if (string.IsNullOrEmpty(fingerPrint)) {
                     fingerPrint = GetHash("CPU >> " + cpuId() + "\nBIOS >> " +
-                                          biosId() + "\nBASE >> " + baseId()
-                                          + "\nDISK >> " + diskId() + "\nVIDEO >> " +
-                                          videoId() + "\nMAC >> " + macId()
-                    );
+                                          biosId() + "\nBASE >> " + baseId());
                 }
                 return fingerPrint;
             }
