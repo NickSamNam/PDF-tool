@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -43,21 +44,26 @@ namespace PDF_tool {
                 MessageBox.Show(this, "Product key should be 25 characters long.");
                 return;
             }
-            switch (await ActivationHandler.ActivateAsync(tb_productKey_0.Text + tb_productKey_1.Text +
-                                                          tb_productKey_2.Text + tb_productKey_3.Text +
-                                                          tb_productKey_4.Text)) {
-                case ActivationResponse.Succesful:
-                    DialogResult = true;
-                    return;
-                case ActivationResponse.InvalidProductKey:
-                    MessageBox.Show(this, "Product key invalid.");
-                    return;
-                case ActivationResponse.ProductKeyTaken:
-                    MessageBox.Show(this, "Product key taken.");
-                    return;
-                default:
-                    MessageBox.Show(this, "Product could not be activated.");
-                    return;
+            try {
+                switch (await ActivationHandler.ActivateAsync(tb_productKey_0.Text + tb_productKey_1.Text +
+                                                              tb_productKey_2.Text + tb_productKey_3.Text +
+                                                              tb_productKey_4.Text)) {
+                    case ActivationResponse.Succesful:
+                        DialogResult = true;
+                        return;
+                    case ActivationResponse.InvalidProductKey:
+                        MessageBox.Show(this, "Product key invalid.");
+                        return;
+                    case ActivationResponse.ProductKeyTaken:
+                        MessageBox.Show(this, "Product key taken.");
+                        return;
+                    default:
+                        MessageBox.Show(this, "Product could not be activated.");
+                        return;
+                }
+            }
+            catch (SocketException) {
+                MessageBox.Show(this, "Could not connect to the activation server.");
             }
         }
 
